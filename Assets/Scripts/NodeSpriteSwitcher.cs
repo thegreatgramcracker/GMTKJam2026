@@ -18,10 +18,10 @@ public class NodeSpriteSwitcher : MonoBehaviour
     void Update()
     {
         NodeSprite spr = sprites.FirstOrDefault(s =>
-        s.traverseNorth == mapNode.DirectionTraversable("North") &&
-        s.traverseEast == mapNode.DirectionTraversable("East") &&
-        s.traverseWest == mapNode.DirectionTraversable("West") &&
-        s.traverseSouth == mapNode.DirectionTraversable("South"));
+        s.traverseNorth == mapNode.DirectionTraversable(0) &&
+        s.traverseEast == mapNode.DirectionTraversable(1) &&
+        s.traverseSouth == mapNode.DirectionTraversable(2) &&
+        s.traverseWest == mapNode.DirectionTraversable(3));
 
         if (spr != null)
         {

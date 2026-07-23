@@ -9,11 +9,13 @@ public class MapNode : MonoBehaviour
     public FeatureType featureEast;
     public FeatureType featureSouth;
 
+    public List<Enemy> enemies = new List<Enemy>();
+
     public bool explored = false;
     public bool discovered = false;
+    
 
     MapManager mapManager;
-    public SpriteRenderer indicator;
     public Vector2Int gridPos;
 
     private void Start()
@@ -35,29 +37,24 @@ public class MapNode : MonoBehaviour
 
 
 
-    private void Update()
+    public FeatureType GetFeature(int dir)
     {
-        indicator.enabled = mapManager.player.gridPos == gridPos;
-    }
-
-    public FeatureType GetFeature(string dir)
-    {
-        switch (dir.ToLower())
+        switch (dir)
         {
-            case "north":
+            case 0:
                 return featureNorth;
-            case "west":
-                return featureWest;
-            case "east":
+            case 1:
                 return featureEast;
-            case "south":
+            case 2:
                 return featureSouth;
+            case 3:
+                return featureWest;
             default:
                 return FeatureType.Wall;
         }
     }
 
-    public bool DirectionTraversable(string dir)
+    public bool DirectionTraversable(int dir)
     {
         return GetFeature(dir) == FeatureType.Exit;
     }

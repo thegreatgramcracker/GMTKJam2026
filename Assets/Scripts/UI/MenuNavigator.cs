@@ -12,7 +12,7 @@ public class MenuNavigator : MonoBehaviour
     {
         public string actionName;
         public bool isNavigation;
-        public int desiredNavValue;
+        public Vector2Int desiredNavValue;
         
         public UnityEvent response;
     }
@@ -22,7 +22,7 @@ public class MenuNavigator : MonoBehaviour
     public List<MenuButton> menuButtons;
     [HideInInspector]
     int currentSelectedIndex;
-    public bool loopingX, loopingY;
+    public bool loopingX, loopingY, movementOff;
     [HideInInspector]
     public MenuButton currentButton;
     public Vector2Int layoutDimensions;
@@ -45,13 +45,13 @@ public class MenuNavigator : MonoBehaviour
 
     private void OnEnable()
     {
-        //controls.Enable();
+        controls.Enable();
         controls.FindAction("Move").performed += Move_performed;
     }
 
     private void Move_performed(InputAction.CallbackContext obj)
     {
-        if (!menuButtons.Any()) return;
+        if (!menuButtons.Any() || movementOff) return;
         Vector2Int previousPos = selectedPosition;
         Vector2Int posChange = new Vector2Int(Mathf.RoundToInt(obj.ReadValue<Vector2>().x), Mathf.RoundToInt(obj.ReadValue<Vector2>().y));
 
@@ -62,7 +62,7 @@ public class MenuNavigator : MonoBehaviour
             {
                 selectedPosition.x = layoutDimensions.x;
             }
-            else if (posChange.y + selectedPosition.x > layoutDimensions.x)
+            else if (posChange.x + selectedPosition.x > layoutDimensions.x)
             {
                 selectedPosition.x = 0;
             }
@@ -106,6 +106,7 @@ public class MenuNavigator : MonoBehaviour
     {
         currentButton = null;
         controls.FindAction("Move").performed -= Move_performed;
+        controls.Disable();
     }
 
     // Update is called once per frame
@@ -130,14 +131,13 @@ public class MenuNavigator : MonoBehaviour
 
         foreach (ButtonAction action in buttonActions)
         {
-            if (InputSystem.actions.FindAction(action.actionName).WasPressedThisFrame())
+            if (controls.FindAction(action.actionName).WasPressedThisFrame())
             {
                 if (action.isNavigation)
                 {
-                    if (Mathf.RoundToInt(InputSystem.actions.FindAction(action.actionName).ReadValue<float>()) == action.desiredNavValue)
+                    if (navigateSound != null)
                     {
-                        action.response.Invoke();
-                        break;
+                        audioSource.PlayOneShot(navigateSound);
                     }
                 }
                 action.response.Invoke();
@@ -151,6 +151,15 @@ public class MenuNavigator : MonoBehaviour
     {
         selectedPosition = Vector2Int.zero;
         //currentSelectedIndex = 0;
+    }
+
+    public void SetPosition(int index)
+    {
+        if (menuButtons[index].gameObject.activeSelf)
+        {
+            selectedPosition = GetIndexPosition(index);
+        }
+        
     }
 
     public void SetPositionLast()

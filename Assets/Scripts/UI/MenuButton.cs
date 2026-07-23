@@ -13,6 +13,10 @@ public class MenuButton : MonoBehaviour
     public Color normalColor = Color.white, highlightedColor;
     public MenuNavigator navigator;
 
+    private void Start()
+    {
+        if (navigator == null) navigator = GetComponentInParent<MenuNavigator>();
+    }
 
     private void Update()
     {

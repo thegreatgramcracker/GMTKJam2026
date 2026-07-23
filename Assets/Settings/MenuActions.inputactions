@@ -1,0 +1,35 @@
+{
+    "version": 1,
+    "name": "MenuActions",
+    "maps": [
+        {
+            "name": "Main",
+            "id": "3b395141-c405-44d7-b032-4bc2c262692f",
+            "actions": [
+                {
+                    "name": "Select",
+                    "type": "Button",
+                    "id": "798fb10f-14e2-4182-bca7-89f7bdc2713c",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "2482d6ad-0de3-47a0-b4b0-f9042838586e",
+                    "path": "<Keyboard>/x",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Select",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
