@@ -1,17 +1,23 @@
 using UnityEngine;
+using TMPro;
+using System.Collections;
 
 public class Player : MonoBehaviour
 {
-    public MapManager mapManager;
     public MapNode currentNode;
     public Vector2Int gridPos;
     public int facingAngle; //0 = north, 3 = west, goes clockwise
     public int wax;
+    public TextMeshProUGUI waxIndicator;
+
+    public int attack;
+    public int burnPower;
+    public int armor;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        gridPos = mapManager.WorldToMapPos(transform.position);
+        gridPos = MapManager.instance.WorldToMapPos(transform.position);
         
     }
 
@@ -19,7 +25,16 @@ public class Player : MonoBehaviour
     void Update()
     {
         transform.rotation = Quaternion.Euler(new Vector3(0, 0, (facingAngle % 4) * -90f));
-        currentNode = mapManager.map.nodes[gridPos.x, gridPos.y];
+        currentNode = MapManager.instance.map.nodes[gridPos.x, gridPos.y];
+        waxIndicator.text = wax.ToString();
+        if (currentNode.currentEnemies.Count <= 0)
+        {
+            BattleManager.instance.bgmMan.Stop();
+        }
+        else
+        {
+            BattleManager.instance.bgmMan.PlaySoundByIndex(0);
+        }
     }
 
     public bool CanTraverse(string dir)
@@ -44,22 +59,28 @@ public class Player : MonoBehaviour
         switch (dir.ToLower())
         {
             case "forward":
-                Move(facingAngle);
+                MenuManager.instance.transition.rotation = Quaternion.Euler(0, 0, 0);
+                StartCoroutine(Move(facingAngle));
                 break;
             case "back":
-                Move((facingAngle + 2) % 4);
+                MenuManager.instance.transition.rotation = Quaternion.Euler(0, 0, 180);
+                StartCoroutine(Move((facingAngle + 2) % 4));
                 break;
             case "left":
-                Move((facingAngle + 3) % 4);
+                MenuManager.instance.transition.rotation = Quaternion.Euler(0, 0, 90);
+                StartCoroutine(Move((facingAngle + 3) % 4));
                 break;
             case "right":
-                Move((facingAngle + 1) % 4);
+                MenuManager.instance.transition.rotation = Quaternion.Euler(0, 0, 270);
+                StartCoroutine(Move((facingAngle + 1) % 4));
                 break;
         }
     }
 
-    public void Move(int dir)
+    public IEnumerator Move(int dir)
     {
+        MapManager.instance.fadeAnimator.Play("FadeIn");
+        yield return new WaitForSeconds(0.45f);
         switch (dir)
         {
             case 0:
@@ -77,8 +98,28 @@ public class Player : MonoBehaviour
         }
         wax--;
         facingAngle = dir;
-        currentNode = mapManager.map.nodes[gridPos.x, gridPos.y];
+        currentNode = MapManager.instance.map.nodes[gridPos.x, gridPos.y];
+        currentNode.OnEnter(0);
         transform.position = currentNode.transform.position;
+        yield return new WaitForSeconds(0.383f);
+        MenuManager.instance.actionMenu.gameObject.SetActive(true);
+    }
+
+    public FeatureType GetFeatureRelative(string dir)
+    {
+        if (currentNode == null) return FeatureType.Wall;
+        switch (dir.ToLower())
+        {
+            case "forward":
+                return currentNode.GetFeature(facingAngle);
+            case "back":
+                return currentNode.GetFeature((facingAngle + 2) % 4);
+            case "left":
+                return currentNode.GetFeature((facingAngle + 3) % 4);
+            case "right":
+                return currentNode.GetFeature((facingAngle + 1) % 4);
+        }
+        return FeatureType.Wall;
     }
 
 }

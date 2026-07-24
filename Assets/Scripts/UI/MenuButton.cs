@@ -31,13 +31,9 @@ public class MenuButton : MonoBehaviour
             onCursorExit.Invoke();
         }
 
-        if (highlighted)
+        if (graphic)
         {
-            graphic.color = highlightedColor;
-        }
-        else
-        {
-            graphic.color = normalColor;
+            graphic.color = highlighted ? highlightedColor : normalColor;
         }
     }
 

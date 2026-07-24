@@ -3,14 +3,17 @@ using UnityEngine;
 
 public class MapManager : MonoBehaviour
 {
+    public static MapManager instance;
     public Player player;
     [NonSerialized]
     public DungeonMap map;
     public Vector2Int gridSize;
+    public Animator fadeAnimator;
 
 
     private void Awake()
     {
+        instance = this;
         map = new DungeonMap(gridSize);
     }
 

@@ -31,6 +31,8 @@ public class MenuNavigator : MonoBehaviour
     public AudioClip navigateSound;
     public List<ButtonAction> buttonActions;
 
+    bool menuDelay;
+
     
     // Start is called before the first frame update
     void Awake()
@@ -45,13 +47,15 @@ public class MenuNavigator : MonoBehaviour
 
     private void OnEnable()
     {
+        menuDelay = true;
         controls.Enable();
         controls.FindAction("Move").performed += Move_performed;
     }
 
+
     private void Move_performed(InputAction.CallbackContext obj)
     {
-        if (!menuButtons.Any() || movementOff) return;
+        if (!menuButtons.Any() || movementOff || menuDelay) return;
         Vector2Int previousPos = selectedPosition;
         Vector2Int posChange = new Vector2Int(Mathf.RoundToInt(obj.ReadValue<Vector2>().x), Mathf.RoundToInt(obj.ReadValue<Vector2>().y));
 
@@ -112,6 +116,11 @@ public class MenuNavigator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (menuDelay)
+        {
+            menuDelay = false;
+            return;
+        }
         if (menuButtons.Any())
         {
             

@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
+using System;
+using System.Linq;
 
 public class MapNode : MonoBehaviour
 {
@@ -9,30 +10,57 @@ public class MapNode : MonoBehaviour
     public FeatureType featureEast;
     public FeatureType featureSouth;
 
-    public List<Enemy> enemies = new List<Enemy>();
+    public EncounterSet encounterSet;
+    //[NonSerialized]
+    public List<Enemy> currentEnemies = new List<Enemy>();
 
     public bool explored = false;
     public bool discovered = false;
+    public bool encountered = false;
     
 
-    MapManager mapManager;
     public Vector2Int gridPos;
 
     private void Start()
     {
-        mapManager = GetComponentInParent<MapManager>();
 
-        gridPos = mapManager.WorldToMapPos(transform.position);
-        if (gridPos.x < 0 || gridPos.x > mapManager.map.nodes.GetLength(0) ||
-            gridPos.y < 0 || gridPos.y > mapManager.map.nodes.GetLength(1))
+        gridPos = MapManager.instance.WorldToMapPos(transform.position);
+        if (gridPos.x < 0 || gridPos.x > MapManager.instance.map.nodes.GetLength(0) ||
+            gridPos.y < 0 || gridPos.y > MapManager.instance.map.nodes.GetLength(1))
         {
             Debug.Log("Tile out of bounds at " + transform.position);
         }
         else
         {
-            mapManager.map.nodes[gridPos.x, gridPos.y] = this;
+            MapManager.instance.map.nodes[gridPos.x, gridPos.y] = this;
         }
             
+    }
+
+    private void Update()
+    {
+        currentEnemies = currentEnemies.Where(e => e.currentHeat < e.maxHeat).ToList();
+
+        
+    }
+
+    public void OnEnter(int dir)
+    {
+        if (encounterSet != null)
+        {
+            Encounter encounter = encounterSet.GetRandomEncounter();
+            if (encounter != null && !encountered)
+            {
+                int currSlot = 0;
+                foreach (EnemyBase enemy in encounter.enemies)
+                {
+                    currentEnemies.Add(new Enemy(enemy, currSlot));
+                    currSlot++;
+                }
+                encountered = true;
+            }
+        }
+        BattleManager.instance.InitiateEncounter();
     }
 
 
